@@ -9,8 +9,15 @@ app.use("*", logger());
 app.use("*", cors({
   origin: "*",
   allowMethods: ["POST", "GET", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
+  allowHeaders: ["Content-Type", "Authorization", "Accept"],
+  exposeHeaders: ["Content-Length"],
+  maxAge: 600,
+  credentials: false,
 }));
+
+app.options("*", (c) => {
+  return c.text("", 204);
+});
 
 const s3 = new S3Client({
   endpoint: process.env.WASABI_ENDPOINT ?? "https://s3.us-east-1.wasabisys.com",
