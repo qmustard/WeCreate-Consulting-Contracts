@@ -868,6 +868,10 @@ async function submitToWeCreate() {
     const doc = await generatePDF();
     if (!doc) { btn.disabled = false; return; }
 
+    // Save PDF to localStorage so user can download after returning
+    const pdfBase64 = doc.output('datauristring');
+    try { localStorage.setItem('wecreate_signed_pdf', pdfBase64); } catch(e) {}
+
     // Upload to Wasabi only — no local download
     const pdfBlob = doc.output('blob');
     status.textContent = 'Uploading to WeCreate secure storage...';
@@ -1090,6 +1094,26 @@ window.addEventListener('load', () => {
   document.getElementById('client-date').value = today;
   document.getElementById('consultant-date').value = today;
   setTimeout(renderConsultantSigToCanvas, 200);
+
+  // Check if a signed PDF was saved from a previous session
+  try {
+    const saved = localStorage.getItem('wecreate_signed_pdf');
+    if (saved) {
+      const dlBtn = document.getElementById('download-btn');
+      if (dlBtn) {
+        dlBtn.style.display = 'block';
+        dlBtn.textContent = 'Download Your Signed Agreement';
+        dlBtn.onclick = function() {
+          const link = document.createElement('a');
+          link.href = saved;
+          link.download = 'WeCreate-Signed-Agreement-Danielle-Sutherland.pdf';
+          link.click();
+        };
+        // Scroll to it smoothly
+        setTimeout(() => dlBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+      }
+    }
+  } catch(e) {}
 });
 
 window.addEventListener('resize', () => {
