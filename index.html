@@ -449,33 +449,7 @@ body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);fon
     </div>
   </div>
 
-  <!-- SECTION 6 — INVESTMENT -->
-  <div class="sec">
-    <p class="kicker">Investment</p>
-    <h2 class="h2">Your retainer.<br><em>All in.</em></h2>
 
-    <div class="inv-outer">
-      <div class="inv-top">
-        <div class="inv-left">
-          <div class="inv-ek">WeCreate Consulting Retainer</div>
-          <div class="inv-h">Technology, Strategy<br>&amp; <em>Intelligence</em> — All In</div>
-          <p class="inv-p">90-day minimum engagement. Month-to-month after that. When your systems start generating revenue in months 3–4, we shift into a revenue share structure. You don't win alone — and neither do we.</p>
-        </div>
-        <div class="inv-right">
-          <div class="inv-amt">$3,500</div>
-          <div class="inv-per">per month</div>
-          <a href="https://api.wecreate.vip/payment-link/6a39c7e17a7ef176dee584d9" class="inv-btn" target="_blank">Start My Retainer</a>
-          <div class="inv-note">Secure payment &middot; 3-month minimum</div>
-        </div>
-      </div>
-      <div class="inv-bottom">
-        <div class="inv-term"><div class="inv-tv">90 days</div><div class="inv-tl">Minimum term</div></div>
-        <div class="inv-term"><div class="inv-tv">Monthly</div><div class="inv-tl">Billing cycle</div></div>
-        <div class="inv-term"><div class="inv-tv">Due on Receipt</div><div class="inv-tl">Payment terms</div></div>
-        <div class="inv-term"><div class="inv-tv">Month 4+</div><div class="inv-tl">Revenue share</div></div>
-      </div>
-    </div>
-  </div>
 
   <!-- SECTION 7 — SIGNATURE -->
   <div class="sec">
@@ -592,7 +566,7 @@ body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);fon
 </div>
 
 <!-- PAYMENT POPUP OVERLAY -->
-<div id="payment-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;">
+<div id="payment-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:99999;align-items:center;justify-content:center;">
   <div style="background:#F8F5EF;border-radius:20px;padding:2.5rem;max-width:480px;width:90%;text-align:center;position:relative;">
     <button onclick="closePayment()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:20px;cursor:pointer;color:#8A8278;">✕</button>
     <div style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#B8952A;margin-bottom:1rem;">Agreement Signed</div>
@@ -873,7 +847,14 @@ async function submitToWeCreate() {
     }
 
     await new Promise(r => setTimeout(r, 800));
-    document.getElementById('payment-overlay').style.display = 'flex';
+    const overlay = document.getElementById('payment-overlay');
+    overlay.style.display = 'flex';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '9999';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.background = 'rgba(0,0,0,0.8)';
   } catch(err) {
     status.textContent = 'Error: ' + err.message;
     status.style.color = '#C0392B';
@@ -1031,7 +1012,14 @@ async function downloadSigned() {
 
     // 3. Show payment popup
     await new Promise(r => setTimeout(r, 800));
-    document.getElementById('payment-overlay').style.display = 'flex';
+    const overlay = document.getElementById('payment-overlay');
+    overlay.style.display = 'flex';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '9999';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.background = 'rgba(0,0,0,0.8)';
 
     btn.disabled = false;
 
