@@ -616,7 +616,7 @@ body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);fon
 <!-- SIGNATURE PAD + PDF EXPORT + WASABI UPLOAD -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const BACKEND_URL = 'https://consulting-contracts-api-nqfr-production.up.railway.app';
+const BACKEND_URL = 'https://consulting-contracts-railway.app';
 const canvases = {};
 
 function initCanvas(id) {
@@ -680,19 +680,31 @@ function closePayment() {
 
 async function uploadToWasabi(pdfBlob, clientName) {
   try {
-    const formData = new FormData();
-    formData.append('file', pdfBlob, `WeCreate-Signed-${clientName}.pdf`);
-    formData.append('clientName', clientName);
-    const endpoint = BACKEND_URL
-      ? `${BACKEND_URL}/upload-contract`
-      : '/upload-contract';
-    const res = await fetch(endpoint, { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.success) {
-      console.log('[Wasabi] Saved:', data.key);
+    // Step 1 — get presigned URL from backend
+    const presignRes = await fetch(`${BACKEND_URL}/presign`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientName }),
+    });
+    const presignData = await presignRes.json();
+    if (!presignData.success) {
+      console.warn('[Wasabi] Presign failed:', presignData.error);
+      return false;
+    }
+    console.log('[Wasabi] Uploading to:', presignData.key);
+
+    // Step 2 — upload directly to Wasabi using presigned URL
+    const uploadRes = await fetch(presignData.url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/pdf' },
+      body: pdfBlob,
+    });
+
+    if (uploadRes.ok) {
+      console.log('[Wasabi] Saved:', presignData.key);
       return true;
     }
-    console.warn('[Wasabi] Upload failed:', data.error);
+    console.warn('[Wasabi] Upload failed:', uploadRes.status);
     return false;
   } catch (err) {
     console.warn('[Wasabi] Upload error:', err.message);
