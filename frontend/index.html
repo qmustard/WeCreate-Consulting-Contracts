@@ -556,33 +556,53 @@ body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);fon
 
 </div>
 
-<!-- PAYMENT POPUP OVERLAY -->
-<div id="payment-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center;">
-  <div style="background:#F8F5EF;border-radius:20px;overflow:hidden;max-width:540px;width:95%;position:relative;display:flex;flex-direction:column;">
-    <!-- Header -->
-    <div style="padding:1.5rem 2rem 1rem;border-bottom:1px solid #E4E0D8;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#B8952A;margin-bottom:4px;">Agreement Signed</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#0A0A0A;">Complete your payment</div>
+<!-- PAYMENT MODAL -->
+<div id="payment-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(10,8,4,0.88);z-index:99999;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#F8F5EF;border-radius:24px;max-width:460px;width:100%;position:relative;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
+
+    <!-- Close -->
+    <button onclick="closePayment()" style="position:absolute;top:1.25rem;right:1.25rem;background:none;border:none;font-size:20px;cursor:pointer;color:#8A8278;line-height:1;z-index:1;">✕</button>
+
+    <!-- Top dark band -->
+    <div style="background:#0E0C07;padding:2.5rem 2.5rem 2rem;">
+      <div style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#B8952A;margin-bottom:1rem;font-family:'Inter',sans-serif;">Agreement Signed ✓</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#F5F0E8;line-height:1.1;margin-bottom:0.5rem;">One last step.</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.35);font-family:'Inter',sans-serif;line-height:1.7;">Your agreement has been submitted to WeCreate. Complete your first month's payment to activate the engagement.</div>
+    </div>
+
+    <!-- Amount -->
+    <div style="padding:1.75rem 2.5rem;border-bottom:1px solid #E4E0D8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:11px;color:#8A8278;letter-spacing:0.06em;text-transform:uppercase;font-family:'Inter',sans-serif;margin-bottom:4px;">Monthly Retainer</div>
+          <div style="font-size:12px;color:#B8952A;font-family:'Inter',sans-serif;">Due on Receipt · 3-month minimum</div>
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:#0A0A0A;line-height:1;">$3,500</div>
       </div>
-      <button onclick="closePayment()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#8A8278;line-height:1;padding:4px;">✕</button>
     </div>
-    <!-- Amount bar -->
-    <div style="background:#0E0C07;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-size:11px;color:#5A5242;letter-spacing:0.08em;text-transform:uppercase;">First Month · Due on Receipt</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:32px;color:#D4AF54;line-height:1;">$3,500</div>
+
+    <!-- What's included -->
+    <div style="padding:1.25rem 2.5rem;border-bottom:1px solid #E4E0D8;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+      <div style="font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><span style="color:#B8952A;">✓</span> Technology setup</div>
+      <div style="font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><span style="color:#B8952A;">✓</span> Social strategy</div>
+      <div style="font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><span style="color:#B8952A;">✓</span> SEO &amp; funnels</div>
+      <div style="font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><span style="color:#B8952A;">✓</span> AI intelligence layer</div>
+      <div style="font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><span style="color:#B8952A;">✓</span> Automation stack</div>
+      <div style="font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;"><span style="color:#B8952A;">✓</span> Software ecosystem</div>
     </div>
-    <!-- Payment iframe -->
-    <iframe
-      src="https://api.wecreate.vip/payment-link/6a39c7e17a7ef176dee584d9"
-      style="width:100%;height:520px;border:none;display:block;"
-      allow="payment"
-      title="Complete Payment">
-    </iframe>
-    <!-- Footer -->
-    <div style="padding:0.75rem 2rem;border-top:1px solid #E4E0D8;text-align:center;font-size:11px;color:#8A8278;">
-      Secure payment · WeCreate LLC · support@wecreate.vip
+
+    <!-- CTA -->
+    <div style="padding:1.75rem 2.5rem;">
+      <a href="https://api.wecreate.vip/payment-link/6a39c7e17a7ef176dee584d9"
+         target="_blank"
+         style="display:block;background:#B8952A;color:#0E0C07;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;padding:18px;border-radius:10px;text-align:center;margin-bottom:1rem;transition:background 0.2s;">
+        Complete Payment — $3,500
+      </a>
+      <div style="text-align:center;font-size:11px;color:#8A8278;font-family:'Inter',sans-serif;">
+        🔒 Secure payment · WeCreate LLC · support@wecreate.vip
+      </div>
     </div>
+
   </div>
 </div>
 
