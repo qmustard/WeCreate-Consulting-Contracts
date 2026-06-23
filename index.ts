@@ -1,83 +1,71 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const app = new Hono();
 
-app.use(
-  "/*",
-  cors({
-    origin: "*",
-    allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use("*", logger());
+app.use("*", cors({
+  origin: "*",
+  allowMethods: ["POST", "GET", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+}));
 
 const s3 = new S3Client({
+  endpoint: process.env.WASABI_ENDPOINT ?? "https://s3.us-east-1.wasabisys.com",
   region: process.env.WASABI_REGION ?? "us-east-1",
-  endpoint: process.env.WASABI_ENDPOINT ?? "https://s3.wasabisys.com",
   credentials: {
-    accessKeyId: process.env.WASABI_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY ?? "",
+    accessKeyId: process.env.WASABI_ACCESS_KEY ?? "",
+    secretAccessKey: process.env.WASABI_SECRET_KEY ?? "",
   },
+  forcePathStyle: true,
 });
 
-const BUCKET = process.env.WASABI_BUCKET ?? "";
+const BUCKET = process.env.WASABI_BUCKET ?? "consulting-contracts";
 
-app.get("/health", (c) => {
-  return c.json({ status: "ok", service: "consulting-contracts-api" });
-});
+app.get("/health", (c) => c.json({ status: "ok", t: Date.now() }));
 
 app.post("/upload-contract", async (c) => {
   try {
     const formData = await c.req.formData();
-
     const file = formData.get("file") as File | null;
-    const clientName = formData.get("clientName") as string | null;
+    const clientName = (formData.get("clientName") as string) ?? "unknown-client";
 
-    if (!file) {
-      return c.json({ error: "No file provided" }, 400);
-    }
+    if (!file) return c.json({ error: "No file provided" }, 400);
 
-    if (!clientName) {
-      return c.json({ error: "No clientName provided" }, 400);
-    }
+    const bytes = await file.arrayBuffer();
+    const buffer = new Uint8Array(bytes);
 
-    const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const timestamp = Date.now();
-    const safeName = clientName.replace(/[^a-zA-Z0-9-_]/g, "-");
-    const key = `signed-agreements/${date}/${safeName}-${timestamp}.pdf`;
+    const now = new Date();
+    const datestamp = now.toISOString().split("T")[0];
+    const timestamp = now.getTime();
+    const safeName = clientName.replace(/[^a-zA-Z0-9-_]/g, "-").toLowerCase();
+    const key = `Contracts/${datestamp}/${safeName}-${timestamp}.pdf`;
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    await s3.send(new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: "application/pdf",
+      Metadata: {
+        "client-name": clientName,
+        "signed-at": now.toISOString(),
+        "uploaded-by": "wecreate-proposal",
+      },
+    }));
 
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: BUCKET,
-        Key: key,
-        Body: buffer,
-        ContentType: "application/pdf",
-      })
-    );
+    console.log(`[upload] Saved: ${key}`);
+    return c.json({ success: true, key, bucket: BUCKET });
 
-    return c.json({
-      success: true,
-      key,
-      bucket: BUCKET,
-      message: "Contract uploaded successfully",
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("Upload error:", message);
-    return c.json({ error: "Failed to upload contract", details: message }, 500);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[upload error]", msg);
+    return c.json({ error: msg }, 500);
   }
 });
 
-export default app;
-
-Bun.serve({
+export default {
+  port: Number(process.env.PORT || 3000),
   fetch: app.fetch,
-  port: Number(process.env.PORT ?? 3000),
-});
-
-console.log(`consulting-contracts-api running on port ${process.env.PORT ?? 3000}`);
+};
