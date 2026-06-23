@@ -1,0 +1,12 @@
+{
+  "name": "consulting-contracts-api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.4.0",
+    "@aws-sdk/client-s3": "^3.600.0"
+  }
+}
